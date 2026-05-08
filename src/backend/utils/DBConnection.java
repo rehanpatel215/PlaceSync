@@ -11,8 +11,8 @@ public class DBConnection {
     private static Connection connection = null;
 
     public static Connection getConnection() {
-        if (connection == null) {
-            try {
+        try {
+            if (connection == null || connection.isClosed()) {
                 Properties props = new Properties();
                 props.load(new FileInputStream("res/config.properties"));
                 
@@ -21,9 +21,9 @@ public class DBConnection {
                 String pass = props.getProperty("db.password");
                 
                 connection = DriverManager.getConnection(url, user, pass);
-            } catch (IOException | SQLException e) {
-                e.printStackTrace();
             }
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
         }
         return connection;
     }

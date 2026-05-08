@@ -36,3 +36,12 @@ target/
 Thumbs.db
 *.sql.log
 *.sql.bak
+
+# Sensitive Data
+res/config.properties
+
+# Temp / Build
+out/
+build/
+.antigravity/
+*.tmp

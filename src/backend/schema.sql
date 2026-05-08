@@ -79,4 +79,3 @@ BEGIN
     WHERE j.job_id = input_job_id;
 END //
 DELIMITER ;
-
