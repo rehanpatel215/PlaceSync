@@ -16,7 +16,7 @@ public class StyledPasswordField extends JPasswordField {
     public StyledPasswordField(String placeholder) {
         this.placeholder = placeholder;
         setOpaque(false);
-        setFont(Theme.FONT_REGULAR);
+        setFont(Theme.FONT_REG);
         setForeground(Theme.TEXT_PRIMARY);
         setCaretColor(Theme.PRIMARY_TEAL);
         setBorder(new EmptyBorder(10, 15, 10, 15));
@@ -43,12 +43,12 @@ public class StyledPasswordField extends JPasswordField {
         
         // Background
         g2.setColor(Color.WHITE);
-        g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, Theme.ROUNDING, Theme.ROUNDING);
+        g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
         
         // Border
         g2.setColor(isFocused ? activeColor : idleColor);
         g2.setStroke(new BasicStroke(isFocused ? 2f : 1f));
-        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, Theme.ROUNDING, Theme.ROUNDING);
+        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
         
         g2.dispose();
         super.paintComponent(g);

@@ -16,7 +16,7 @@ public class ApplicationManagementPanel extends BaseDashboardPanel {
     private DefaultTableModel tableModel;
 
     public ApplicationManagementPanel() {
-        super("Application & Interview Control");
+        super("Application & Interview Control", "Admin");
         adminDAO = new AdminDAO();
         
         contentArea.setLayout(new BorderLayout(20, 20));
@@ -29,9 +29,32 @@ public class ApplicationManagementPanel extends BaseDashboardPanel {
             BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
 
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false);
+        
         JLabel listTitle = new JLabel("Student Applications");
         listTitle.setFont(Theme.FONT_BOLD);
-        listPanel.add(listTitle, BorderLayout.NORTH);
+        headerPanel.add(listTitle, BorderLayout.WEST);
+
+        JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        controls.setOpaque(false);
+
+        String[] statuses = {"All Status", "Pending", "Selected", "Rejected"};
+        JComboBox<String> statusFilter = new JComboBox<>(statuses);
+        statusFilter.addActionListener(e -> {
+            String selected = (String) statusFilter.getSelectedItem();
+            refreshTable(selected.equals("All Status") ? "" : selected);
+        });
+        controls.add(new JLabel("Filter:"));
+        controls.add(statusFilter);
+
+        JButton exportBtn = new JButton("Export CSV");
+        exportBtn.setFont(Theme.FONT_SMALL);
+        exportBtn.addActionListener(e -> handleExport());
+        controls.add(exportBtn);
+
+        headerPanel.add(controls, BorderLayout.EAST);
+        listPanel.add(headerPanel, BorderLayout.NORTH);
 
         String[] columns = {"App ID", "Student Name", "Company", "Role", "Status"};
         tableModel = new DefaultTableModel(columns, 0);
@@ -138,9 +161,31 @@ public class ApplicationManagementPanel extends BaseDashboardPanel {
         dialog.setVisible(true);
     }
 
+    private void handleExport() {
+        try (java.io.FileWriter writer = new java.io.FileWriter("applications_report.csv")) {
+            writer.write("App ID,Student,Company,Role,Status\n");
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                writer.write(
+                    tableModel.getValueAt(i, 0) + "," +
+                    tableModel.getValueAt(i, 1) + "," +
+                    tableModel.getValueAt(i, 2) + "," +
+                    tableModel.getValueAt(i, 3) + "," +
+                    tableModel.getValueAt(i, 4) + "\n"
+                );
+            }
+            JOptionPane.showMessageDialog(this, "Report exported to applications_report.csv");
+        } catch (java.io.IOException e) {
+            JOptionPane.showMessageDialog(this, "Export failed: " + e.getMessage());
+        }
+    }
+
     private void refreshTable() {
+        refreshTable("");
+    }
+
+    private void refreshTable(String statusFilter) {
         tableModel.setRowCount(0);
-        List<Map<String, Object>> apps = adminDAO.getAllApplications();
+        List<Map<String, Object>> apps = adminDAO.getAllApplications(statusFilter);
         for (Map<String, Object> app : apps) {
             tableModel.addRow(new Object[]{
                 app.get("id"),

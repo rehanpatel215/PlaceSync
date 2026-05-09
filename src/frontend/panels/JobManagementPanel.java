@@ -18,7 +18,7 @@ public class JobManagementPanel extends BaseDashboardPanel {
     private JComboBox<CompanyWrapper> companyDropdown;
 
     public JobManagementPanel() {
-        super("Job Openings & Postings");
+        super("Job Openings & Postings", "Admin");
         adminDAO = new AdminDAO();
         
         contentArea.setLayout(new BorderLayout(20, 20));

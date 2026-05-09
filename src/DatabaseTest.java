@@ -16,7 +16,7 @@ public class DatabaseTest {
             }
         } catch (SQLException e) {
             System.out.println("❌ ERROR: Database connection failed!");
-            e.printStackTrace();
+            System.err.println("SQL Error: " + e.getMessage());
         }
         
         System.out.println("---------------------------------------");

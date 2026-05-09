@@ -1,16 +1,20 @@
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import frontend.MainFrame;
 
 public class Main {
     public static void main(String[] args) {
-        // Apply modern Look and Feel
+        // 1. Update Database Schema (Create missing tables)
+        SchemaUpdate.main(args);
+
+        // 2. Apply modern Look and Feel
         try {
             UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
             frontend.theme.Theme.applyGlobalTheme();
-        } catch (Exception e) {
+        } catch (UnsupportedLookAndFeelException e) {
             System.err.println("Failed to initialize FlatLaf");
         }
 

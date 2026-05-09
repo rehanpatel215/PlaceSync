@@ -12,10 +12,12 @@ public class NavigationManager {
     }
 
     public static void showAdminDashboard() {
+        mainFrame.refreshAdminPanels();
         mainFrame.showPanel("ADMIN_DASHBOARD");
     }
 
     public static void showStudentDashboard() {
+        mainFrame.refreshStudentPanels();
         mainFrame.showPanel("STUDENT_DASHBOARD");
     }
 
@@ -29,6 +31,25 @@ public class NavigationManager {
 
     public static void showAppMgmt() {
         mainFrame.showPanel("APP_MGMT");
+    }
+
+    public static void showJobDiscovery() {
+        mainFrame.refreshStudentPanels();
+        mainFrame.showPanel("JOB_DISCOVERY");
+    }
+
+    public static void showProfile() {
+        mainFrame.refreshStudentPanels();
+        mainFrame.showPanel("STUDENT_PROFILE");
+    }
+
+    public static void showSettings() {
+        if (backend.auth.AuthManager.getInstance().isAdmin()) {
+            mainFrame.refreshAdminPanels();
+        } else {
+            mainFrame.refreshStudentPanels();
+        }
+        mainFrame.showPanel("SETTINGS");
     }
 }
 

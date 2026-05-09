@@ -26,6 +26,34 @@ public class AdminDAO {
         return stats;
     }
 
+    public Map<String, Integer> getApplicationStatistics() {
+        Map<String, Integer> stats = new HashMap<>();
+        String sql = "SELECT status, COUNT(*) as count FROM Applications GROUP BY status";
+        try (Connection conn = DBConnection.getConnection();
+             ResultSet rs = conn.createStatement().executeQuery(sql)) {
+            while (rs.next()) {
+                stats.put(rs.getString("status"), rs.getInt("count"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return stats;
+    }
+
+    public Map<String, Integer> getPlacementRatioByBranch() {
+        Map<String, Integer> branchStats = new HashMap<>();
+        String sql = "SELECT branch, COUNT(*) as placed_count FROM Students WHERE placement_status = 'Placed' GROUP BY branch";
+        try (Connection conn = DBConnection.getConnection();
+             ResultSet rs = conn.createStatement().executeQuery(sql)) {
+            while (rs.next()) {
+                branchStats.put(rs.getString("branch"), rs.getInt("placed_count"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return branchStats;
+    }
+
     // --- Company Management ---
     public boolean addCompany(String name, String location) {
         String sql = "INSERT INTO Companies (name, location) VALUES (?, ?)";
@@ -123,14 +151,29 @@ public class AdminDAO {
 
     // --- Application & Interview Management ---
     public List<Map<String, Object>> getAllApplications() {
+        return getAllApplications("");
+    }
+
+    public List<Map<String, Object>> getAllApplications(String filterStatus) {
         List<Map<String, Object>> apps = new ArrayList<>();
         String sql = "SELECT a.application_id, s.name as student_name, c.name as company_name, j.role, a.status " +
                     "FROM Applications a " +
                     "JOIN Students s ON a.student_id = s.student_id " +
                     "JOIN Jobs j ON a.job_id = j.job_id " +
-                    "JOIN Companies c ON j.company_id = c.company_id";
+                    "JOIN Companies c ON j.company_id = c.company_id ";
+        
+        if (filterStatus != null && !filterStatus.isEmpty()) {
+            sql += "WHERE a.status = ?";
+        }
+
         try (Connection conn = DBConnection.getConnection();
-             ResultSet rs = conn.createStatement().executeQuery(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            if (filterStatus != null && !filterStatus.isEmpty()) {
+                pstmt.setString(1, filterStatus);
+            }
+
+            ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 Map<String, Object> app = new HashMap<>();
                 app.put("id", rs.getInt("application_id"));
@@ -152,10 +195,38 @@ public class AdminDAO {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, status);
             pstmt.setInt(2, appId);
-            return pstmt.executeUpdate() > 0;
+            
+            boolean success = pstmt.executeUpdate() > 0;
+            if (success) {
+                // Send notification to student
+                sendAppStatusNotification(appId, status);
+            }
+            return success;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    private void sendAppStatusNotification(int appId, String status) {
+        String query = "SELECT s.user_id, c.name as company, j.role FROM Applications a " +
+                      "JOIN Students s ON a.student_id = s.student_id " +
+                      "JOIN Jobs j ON a.job_id = j.job_id " +
+                      "JOIN Companies c ON j.company_id = c.company_id " +
+                      "WHERE a.application_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, appId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                int userId = rs.getInt("user_id");
+                String company = rs.getString("company");
+                String role = rs.getString("role");
+                String message = "Your application for " + role + " at " + company + " has been marked as " + status + ".";
+                new NotificationDAO().sendNotification(userId, message);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

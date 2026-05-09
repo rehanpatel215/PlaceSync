@@ -8,20 +8,28 @@ import java.awt.*;
 
 public abstract class BaseDashboardPanel extends JPanel {
     protected JPanel contentArea;
+    protected Topbar topbar;
+    protected Sidebar sidebar;
     
     public BaseDashboardPanel(String title) {
+        this(title, null);
+    }
+
+    public BaseDashboardPanel(String title, String role) {
         setLayout(new BorderLayout());
         setBackground(Theme.BACKGROUND);
 
         // Sidebar (Left)
-        add(new Sidebar(), BorderLayout.WEST);
+        sidebar = new Sidebar(role);
+        add(sidebar, BorderLayout.WEST);
 
         // Main Container (Center)
         JPanel mainContainer = new JPanel(new BorderLayout());
         mainContainer.setOpaque(false);
         
         // Topbar
-        mainContainer.add(new Topbar(title), BorderLayout.NORTH);
+        topbar = new Topbar(title);
+        mainContainer.add(topbar, BorderLayout.NORTH);
 
         // Dynamic Content Area
         contentArea = new JPanel(new FlowLayout(FlowLayout.LEFT, 30, 30));
@@ -33,5 +41,12 @@ public abstract class BaseDashboardPanel extends JPanel {
         
         mainContainer.add(scrollPane, BorderLayout.CENTER);
         add(mainContainer, BorderLayout.CENTER);
+    }
+    public void refreshSidebar() {
+        if (sidebar != null) sidebar.refreshMenu(null);
+    }
+
+    public void refreshUser() {
+        if (topbar != null) topbar.updateUser();
     }
 }

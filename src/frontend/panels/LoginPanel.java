@@ -12,9 +12,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class LoginPanel extends JPanel {
-    private StyledTextField userField;
-    private StyledPasswordField passField;
-    private RoundedButton loginBtn;
+    private final StyledTextField userField;
+    private final StyledPasswordField passField;
+    private final RoundedButton loginBtn;
     private String selectedRole = "Admin";
 
     public LoginPanel() {

@@ -5,6 +5,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Card extends JPanel {
+    private JLabel valueLabel; // Added
+
     public Card(String title, String value, Color accentColor) {
         setPreferredSize(new Dimension(280, 140));
         setBackground(Color.WHITE);
@@ -43,7 +45,7 @@ public class Card extends JPanel {
         add(topRow, gbc);
 
         // Value
-        JLabel valueLabel = new JLabel(value);
+        valueLabel = new JLabel(value);
         valueLabel.setFont(new Font("Inter", Font.BOLD, 28));
         valueLabel.setForeground(Theme.TEXT_PRIMARY);
         gbc.gridy = 1;
@@ -57,6 +59,10 @@ public class Card extends JPanel {
         gbc.gridy = 2;
         gbc.insets = new Insets(0, 20, 15, 20);
         add(trend, gbc);
+    }
+
+    public void setValue(String value) {
+        valueLabel.setText(value);
     }
 
     @Override

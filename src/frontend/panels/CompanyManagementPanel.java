@@ -16,7 +16,7 @@ public class CompanyManagementPanel extends BaseDashboardPanel {
     private DefaultTableModel tableModel;
 
     public CompanyManagementPanel() {
-        super("Company Management");
+        super("Company Management", "Admin");
         adminDAO = new AdminDAO();
         
         contentArea.setLayout(new BorderLayout(20, 20));
