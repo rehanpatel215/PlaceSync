@@ -3,6 +3,7 @@ package frontend.panels;
 import frontend.NavigationManager;
 import frontend.theme.Theme;
 import frontend.components.RoundedButton;
+import frontend.components.ShadowPanel;
 import frontend.components.StyledTextField;
 import frontend.components.StyledPasswordField;
 import backend.auth.AuthManager;
@@ -18,93 +19,148 @@ public class LoginPanel extends JPanel {
     private String selectedRole = "Admin";
 
     public LoginPanel() {
-        setBackground(Theme.BACKGROUND);
+        setBackground(Theme.BG_DARK_GREEN);
         setLayout(new GridBagLayout());
         
-        // Main Login Card
-        JPanel card = new JPanel(new GridBagLayout());
-        card.setBackground(Color.WHITE);
-        card.setPreferredSize(new Dimension(420, 580));
-        card.setBorder(BorderFactory.createLineBorder(Theme.BORDER_COLOR, 1, true));
+        // 1. Create the Login Card Content
+        JPanel cardContent = new JPanel(new GridBagLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), Theme.ROUNDING, Theme.ROUNDING);
+                g2.dispose();
+            }
+        };
+        cardContent.setOpaque(false);
+        cardContent.setPreferredSize(new Dimension(380, 520));
         
         GridBagConstraints cgbc = new GridBagConstraints();
-        cgbc.insets = new Insets(10, 40, 10, 40);
+        cgbc.insets = new Insets(10, 30, 10, 30);
         cgbc.fill = GridBagConstraints.HORIZONTAL;
         cgbc.weightx = 1.0;
 
-        // 1. Title & Subtitle
-        JLabel title = new JLabel("PlaceSync", SwingConstants.CENTER);
-        title.setFont(Theme.FONT_TITLE);
-        title.setForeground(Theme.PRIMARY_TEAL);
+        // Branding: Logo Row
+        JPanel logoRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        logoRow.setOpaque(false);
+        
+        JPanel logoBox = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Theme.PRIMARY_TEAL);
+                g2.fillRoundRect(0, 0, 32, 32, 8, 8);
+                g2.setColor(Color.WHITE);
+                g2.setFont(new Font("Inter", Font.BOLD, 18));
+                g2.drawString("P", 10, 23);
+            }
+        };
+        logoBox.setPreferredSize(new Dimension(32, 32));
+        logoBox.setOpaque(false);
+        logoRow.add(logoBox);
+        
+        JLabel title = new JLabel("PlaceSync");
+        title.setFont(new Font("Inter", Font.BOLD, 22));
+        title.setForeground(Theme.BG_DARK_GREEN);
+        logoRow.add(title);
+        
         cgbc.gridy = 0;
         cgbc.insets = new Insets(30, 0, 5, 0);
-        card.add(title, cgbc);
+        cardContent.add(logoRow, cgbc);
 
-        JLabel subtitle = new JLabel("Sustainability in Career Growth", SwingConstants.CENTER);
-        subtitle.setFont(Theme.FONT_SMALL);
-        subtitle.setForeground(Theme.TEXT_SECONDARY);
+        JLabel subtitle = new JLabel("Career placement platform", SwingConstants.CENTER);
+        subtitle.setFont(Theme.FONT_XS);
+        subtitle.setForeground(Theme.TEXT_TERTIARY);
         cgbc.gridy = 1;
-        cgbc.insets = new Insets(0, 0, 30, 0);
-        card.add(subtitle, cgbc);
+        cgbc.insets = new Insets(0, 0, 25, 0);
+        cardContent.add(subtitle, cgbc);
 
-        // 2. Role Toggle (Minimalist Upstream Style)
-        JPanel togglePanel = new JPanel(new GridLayout(1, 2, 0, 0));
-        togglePanel.setBackground(Theme.BACKGROUND);
-        togglePanel.setPreferredSize(new Dimension(0, 45));
+        // 2. Pill Toggle (Modern Style)
+        JPanel pillToggle = new JPanel(new GridLayout(1, 2, 4, 4));
+        pillToggle.setBackground(new Color(0xF0F4F2));
+        pillToggle.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+        pillToggle.setPreferredSize(new Dimension(0, 44));
         
-        JButton adminToggle = createToggleButton("Admin Login", true);
-        JButton studentToggle = createToggleButton("Student Login", false);
+        RoundedButton adminToggle = createPillBtn("Admin", true);
+        RoundedButton studentToggle = createPillBtn("Student", false);
         
         adminToggle.addActionListener(e -> {
             selectedRole = "Admin";
-            updateToggleUI(adminToggle, studentToggle);
+            updatePillUI(adminToggle, studentToggle);
         });
         
         studentToggle.addActionListener(e -> {
             selectedRole = "Student";
-            updateToggleUI(studentToggle, adminToggle);
+            updatePillUI(studentToggle, adminToggle);
         });
 
-        togglePanel.add(adminToggle);
-        togglePanel.add(studentToggle);
+        pillToggle.add(adminToggle);
+        pillToggle.add(studentToggle);
         
         cgbc.gridy = 2;
-        cgbc.insets = new Insets(0, 40, 30, 40);
-        card.add(togglePanel, cgbc);
+        cgbc.insets = new Insets(0, 30, 25, 30);
+        cardContent.add(pillToggle, cgbc);
 
         // 3. Inputs
-        cgbc.insets = new Insets(5, 40, 5, 40);
+        cgbc.insets = new Insets(5, 30, 5, 30);
         
-        JLabel userLabel = new JLabel("Username");
-        userLabel.setFont(Theme.FONT_SMALL);
-        cgbc.gridy = 3;
-        card.add(userLabel, cgbc);
-
-        userField = new StyledTextField("admin");
+        userField = new StyledTextField("Username");
         userField.setPreferredSize(new Dimension(0, 45));
         cgbc.gridy = 4;
-        card.add(userField, cgbc);
-
-        JLabel passLabel = new JLabel("Password");
-        passLabel.setFont(Theme.FONT_SMALL);
-        cgbc.gridy = 5;
-        cgbc.insets = new Insets(15, 40, 5, 40);
-        card.add(passLabel, cgbc);
+        cardContent.add(userField, cgbc);
 
         passField = new StyledPasswordField("pass");
         passField.setPreferredSize(new Dimension(0, 45));
-        cgbc.gridy = 6;
-        card.add(passField, cgbc);
+        cgbc.gridy = 5;
+        cgbc.insets = new Insets(10, 30, 5, 30);
+        cardContent.add(passField, cgbc);
 
         // 4. Login Button
-        loginBtn = new RoundedButton("Get Started");
+        loginBtn = new RoundedButton("Sign in →");
         loginBtn.setPreferredSize(new Dimension(0, 50));
+        cgbc.gridy = 6;
+        cgbc.insets = new Insets(30, 30, 15, 30);
+        cardContent.add(loginBtn, cgbc);
+        
+        JLabel forgot = new JLabel("Forgot password?", SwingConstants.CENTER);
+        forgot.setFont(Theme.FONT_XS);
+        forgot.setForeground(Theme.TEXT_TERTIARY);
+        forgot.setCursor(new Cursor(Cursor.HAND_CURSOR));
         cgbc.gridy = 7;
-        cgbc.insets = new Insets(40, 40, 40, 40);
-        card.add(loginBtn, cgbc);
+        cgbc.insets = new Insets(0, 0, 30, 0);
+        cardContent.add(forgot, cgbc);
 
-        add(card);
+        // Wrap in ShadowPanel
+        ShadowPanel shadowCard = new ShadowPanel(cardContent, Theme.ROUNDING);
+        add(shadowCard);
+        
         loginBtn.addActionListener(e -> handleLogin());
+    }
+
+    private RoundedButton createPillBtn(String text, boolean active) {
+        RoundedButton btn = new RoundedButton(text);
+        btn.setFont(Theme.FONT_SM);
+        stylePillBtn(btn, active);
+        return btn;
+    }
+
+    private void stylePillBtn(RoundedButton btn, boolean active) {
+        if (active) {
+            btn.setBackground(Color.WHITE);
+            btn.setForeground(Theme.BG_DARK_GREEN);
+        } else {
+            btn.setBackground(new Color(0, 0, 0, 0));
+            btn.setForeground(Theme.TEXT_SECONDARY);
+        }
+    }
+
+    private void updatePillUI(RoundedButton active, RoundedButton inactive) {
+        stylePillBtn(active, true);
+        stylePillBtn(inactive, false);
+        active.repaint();
+        inactive.repaint();
     }
 
     private JButton createToggleButton(String text, boolean active) {

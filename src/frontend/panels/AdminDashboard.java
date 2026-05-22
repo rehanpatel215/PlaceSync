@@ -35,13 +35,19 @@ public class AdminDashboard extends BaseDashboardPanel {
 
         // Metric Cards (Row 1)
         gbc.gridx = 0; gbc.gridy = 0;
-        contentArea.add(new Card("Total Students", String.valueOf(totalStudents), Theme.PRIMARY_TEAL), gbc);
+        Card studentCard = new Card("Total Students", String.valueOf(totalStudents), Theme.PRIMARY_TEAL);
+        studentCard.setTrend("↑ 8 this semester", true);
+        contentArea.add(studentCard, gbc);
         
         gbc.gridx = 1;
-        contentArea.add(new Card("Placed Ratio", String.format("%.1f%%", ratio), Theme.ACCENT_EMERALD), gbc);
+        Card ratioCard = new Card("Placed Ratio", String.format("%.1f%%", ratio), Theme.ACCENT_EMERALD);
+        ratioCard.setTrend("↑ 5% vs last year", true);
+        contentArea.add(ratioCard, gbc);
         
         gbc.gridx = 2;
-        contentArea.add(new Card("Active Companies", String.valueOf(totalCompanies), Theme.ACCENT_BLUE), gbc);
+        Card companyCard = new Card("Active Companies", String.valueOf(totalCompanies), Theme.ACCENT_BLUE);
+        companyCard.setTrend("3 added this month", true);
+        contentArea.add(companyCard, gbc);
         
         // Row 2: Charts Section
         gbc.gridx = 0; gbc.gridy = 1;

@@ -14,7 +14,7 @@ public class RoundedButton extends JButton {
     public RoundedButton(String text) {
         super(text);
         this.normalColor = Theme.PRIMARY_TEAL;
-        this.hoverColor = Theme.PRIMARY_TEAL.darker();
+        this.hoverColor = new Color(0x157A5A); // Slightly darker teal
         
         setContentAreaFilled(false);
         setFocusPainted(false);
@@ -27,11 +27,25 @@ public class RoundedButton extends JButton {
             @Override
             public void mouseEntered(MouseEvent e) {
                 setBackground(hoverColor);
+                repaint();
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
                 setBackground(normalColor);
+                repaint();
+            }
+            
+            @Override
+            public void mousePressed(MouseEvent e) {
+                setBackground(hoverColor.darker());
+                repaint();
+            }
+            
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                setBackground(hoverColor);
+                repaint();
             }
         });
         
@@ -43,7 +57,7 @@ public class RoundedButton extends JButton {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(getBackground());
-        g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
+        g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), Theme.ROUNDING, Theme.ROUNDING));
         g2.dispose();
         super.paintComponent(g);
     }

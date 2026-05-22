@@ -8,9 +8,9 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class StyledTextField extends JTextField {
-    private String placeholder;
-    private Color activeColor = Theme.PRIMARY_TEAL;
-    private Color idleColor = Theme.BORDER_COLOR;
+    private final String placeholder;
+    private final Color activeColor = Theme.PRIMARY_TEAL;
+    private final Color idleColor = Theme.BORDER_COLOR;
     private boolean isFocused = false;
 
     public StyledTextField(String placeholder) {
@@ -43,12 +43,12 @@ public class StyledTextField extends JTextField {
         
         // Background
         g2.setColor(Color.WHITE);
-        g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
+        g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, Theme.INPUT_ROUNDING, Theme.INPUT_ROUNDING);
         
         // Border
         g2.setColor(isFocused ? activeColor : idleColor);
         g2.setStroke(new BasicStroke(isFocused ? 2f : 1f));
-        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
+        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, Theme.INPUT_ROUNDING, Theme.INPUT_ROUNDING);
         
         g2.dispose();
         super.paintComponent(g);

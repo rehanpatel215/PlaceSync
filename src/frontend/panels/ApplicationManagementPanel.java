@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 public class ApplicationManagementPanel extends BaseDashboardPanel {
-    private AdminDAO adminDAO;
-    private JTable appTable;
-    private DefaultTableModel tableModel;
+    private final AdminDAO adminDAO;
+    private final JTable appTable;
+    private final DefaultTableModel tableModel;
 
     public ApplicationManagementPanel() {
         super("Application & Interview Control", "Admin");
@@ -61,6 +61,10 @@ public class ApplicationManagementPanel extends BaseDashboardPanel {
         appTable = new JTable(tableModel);
         appTable.setRowHeight(40);
         appTable.setFont(Theme.FONT_REGULAR);
+        
+        // Status Badge Renderer
+        appTable.getColumnModel().getColumn(4).setCellRenderer(new frontend.components.StatusCellRenderer());
+        
         listPanel.add(new JScrollPane(appTable), BorderLayout.CENTER);
 
         // --- Action Sidebar ---

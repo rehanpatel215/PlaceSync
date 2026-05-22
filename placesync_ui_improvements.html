@@ -1,0 +1,339 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .section { margin-bottom: 2rem; }
+  .section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .75rem; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .panel { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+  .panel-label { font-size: 11px; color: var(--color-text-tertiary); padding: 8px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .panel-label.bad { color: #b84b4b; }
+  .panel-label.good { color: #1D9E75; }
+
+  /* === BEFORE: Old Login === */
+  .old-login { background: #F4F7F5; padding: 20px; display: flex; align-items: center; justify-content: center; height: 260px; }
+  .old-card { background: white; border: 1px solid #DFE8E4; border-radius: 4px; padding: 18px; width: 180px; }
+  .old-title { font-size: 15px; font-weight: 700; color: #1D9E75; text-align: center; margin-bottom: 2px; }
+  .old-sub { font-size: 9px; color: #6B8A7A; text-align: center; margin-bottom: 10px; }
+  .old-toggle { display: flex; margin-bottom: 10px; }
+  .old-toggle-btn { flex: 1; font-size: 9px; padding: 5px 0; border: none; cursor: pointer; }
+  .old-toggle-btn.active { background: #1D9E75; color: white; }
+  .old-toggle-btn.inactive { background: #F3F4F6; color: #6B8A7A; }
+  .old-label { font-size: 8px; color: #333; margin-bottom: 2px; }
+  .old-input { width: 100%; border: 1px solid #DFE8E4; border-radius: 4px; padding: 5px 7px; font-size: 9px; margin-bottom: 6px; }
+  .old-btn { width: 100%; background: #1D9E75; color: white; border: none; border-radius: 4px; padding: 7px 0; font-size: 9px; font-weight: 700; cursor: pointer; margin-top: 6px; }
+
+  /* === AFTER: New Login === */
+  .new-login { background: #0F3D30; padding: 20px; display: flex; align-items: center; justify-content: center; height: 260px; }
+  .new-card { background: white; border-radius: 16px; padding: 20px 18px; width: 190px; box-shadow: 0 2px 24px rgba(0,0,0,0.12); }
+  .new-logo-row { display: flex; align-items: center; gap: 7px; margin-bottom: 12px; }
+  .new-logo-circle { width: 28px; height: 28px; background: #1D9E75; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .new-logo-circle span { color: white; font-weight: 700; font-size: 14px; line-height: 1; }
+  .new-title2 { font-size: 14px; font-weight: 700; color: #0F3D30; }
+  .new-sub2 { font-size: 8px; color: #9FE1CB; background: #0F3D30; padding: 2px 7px; border-radius: 20px; display: inline-block; margin-bottom: 10px; }
+  .new-toggle2 { display: flex; background: #F0F4F2; border-radius: 8px; padding: 2px; margin-bottom: 10px; }
+  .new-toggle-btn2 { flex: 1; font-size: 8px; padding: 4px 0; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .new-toggle-btn2.active { background: white; color: #0F3D30; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  .new-toggle-btn2.inactive { background: transparent; color: #6B8A7A; }
+  .new-input2 { width: 100%; border: 1.5px solid #DFE8E4; border-radius: 8px; padding: 5px 8px; font-size: 8px; margin-bottom: 6px; color: #1A2E25; outline: none; }
+  .new-input2:focus { border-color: #1D9E75; }
+  .new-btn2 { width: 100%; background: #1D9E75; color: white; border: none; border-radius: 8px; padding: 7px 0; font-size: 9px; font-weight: 700; cursor: pointer; margin-top: 6px; }
+  .new-forgot { text-align: center; font-size: 7px; color: #6B8A7A; margin-top: 5px; }
+
+  /* === BEFORE: Sidebar === */
+  .old-sidebar { display: flex; height: 200px; }
+  .old-sb { width: 40px; background: #0F3D30; display: flex; flex-direction: column; align-items: center; padding: 8px 0; gap: 4px; }
+  .old-sb-icon { width: 32px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #9FE1CB; border-radius: 6px; cursor: pointer; }
+  .old-sb-icon.active { background: #1D9E75; }
+  .old-content { flex: 1; background: #F4F7F5; padding: 12px; }
+  .old-topbar { background: white; border-bottom: 1px solid #DFE8E4; padding: 8px 12px; font-size: 11px; font-weight: 700; color: #1A2E25; }
+  .old-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+  .old-card2 { background: white; border: 1px solid #DFE8E4; border-radius: 4px; padding: 8px; }
+  .old-card-label { font-size: 7px; color: #6B8A7A; margin-bottom: 2px; }
+  .old-card-val { font-size: 16px; font-weight: 700; color: #1A2E25; }
+  .old-card-trend { font-size: 6px; color: #639922; }
+
+  /* === AFTER: Sidebar + Dashboard === */
+  .new-sidebar { display: flex; height: 200px; border-radius: var(--border-radius-lg); overflow: hidden; }
+  .new-sb { width: 48px; background: #0A2E22; display: flex; flex-direction: column; align-items: center; padding: 10px 0; gap: 2px; }
+  .new-sb-logo { width: 32px; height: 32px; background: #1D9E75; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .new-sb-logo span { color: white; font-weight: 700; font-size: 14px; }
+  .new-sb-icon { width: 36px; height: 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; color: #5DCAA5; border-radius: 8px; cursor: pointer; gap: 1px; }
+  .new-sb-icon .icon-label { font-size: 6px; color: #5DCAA5; }
+  .new-sb-icon.active { background: rgba(29,158,117,0.18); }
+  .new-sb-icon.active .icon-label { color: #9FE1CB; }
+  .new-content { flex: 1; background: #F4F7F5; display: flex; flex-direction: column; }
+  .new-topbar { background: white; border-bottom: 0.5px solid #DFE8E4; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
+  .new-topbar-left { font-size: 12px; font-weight: 600; color: #0F3D30; }
+  .new-topbar-right { display: flex; align-items: center; gap: 6px; }
+  .new-avatar { width: 22px; height: 22px; background: #1D9E75; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .new-avatar span { font-size: 8px; color: white; font-weight: 700; }
+  .new-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 8px; }
+  .new-card2 { background: white; border: 0.5px solid #DFE8E4; border-radius: 10px; padding: 9px 10px; }
+  .new-card-dot { width: 6px; height: 6px; border-radius: 50%; margin-bottom: 4px; }
+  .new-card-label2 { font-size: 6px; color: #6B8A7A; margin-bottom: 2px; text-transform: uppercase; letter-spacing: .04em; }
+  .new-card-val2 { font-size: 17px; font-weight: 700; color: #1A2E25; line-height: 1.1; }
+  .new-card-trend2 { font-size: 6px; color: #639922; margin-top: 2px; }
+
+  /* === BEFORE: Table === */
+  .old-table-panel { padding: 10px; background: #F4F7F5; height: 180px; }
+  .old-table-title { font-size: 9px; font-weight: 700; color: #1A2E25; margin-bottom: 6px; }
+  .old-table { width: 100%; border-collapse: collapse; font-size: 8px; }
+  .old-table th { background: #F4F7F5; color: #6B8A7A; font-weight: 700; padding: 5px 6px; text-align: left; border-bottom: 1px solid #DFE8E4; }
+  .old-table td { padding: 5px 6px; border-bottom: 1px solid #F0F0F0; color: #1A2E25; }
+
+  /* === AFTER: Table === */
+  .new-table-panel { padding: 10px; background: #F4F7F5; height: 180px; }
+  .new-table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .new-table-title { font-size: 10px; font-weight: 700; color: #0F3D30; }
+  .new-filter-bar { display: flex; gap: 4px; }
+  .new-filter-pill { font-size: 7px; padding: 2px 7px; border-radius: 20px; border: 0.5px solid #DFE8E4; background: white; color: #6B8A7A; cursor: pointer; }
+  .new-filter-pill.active { background: #1D9E75; color: white; border-color: #1D9E75; }
+  .new-table2 { width: 100%; border-collapse: collapse; font-size: 8px; background: white; border-radius: 8px; overflow: hidden; border: 0.5px solid #DFE8E4; }
+  .new-table2 th { background: #F8FAF9; color: #6B8A7A; font-weight: 700; padding: 5px 8px; text-align: left; font-size: 7px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 0.5px solid #DFE8E4; }
+  .new-table2 td { padding: 6px 8px; border-bottom: 0.5px solid #F5F5F5; color: #1A2E25; }
+  .new-table2 tr:hover td { background: #F8FAF9; }
+  .status-pill { display: inline-block; padding: 1px 6px; border-radius: 12px; font-size: 7px; font-weight: 600; }
+  .status-pending { background: #FAEEDA; color: #854F0B; }
+  .status-selected { background: #EAF3DE; color: #3B6D11; }
+  .status-rejected { background: #FCEBEB; color: #A32D2D; }
+
+  /* === TIPS SECTION === */
+  .tips { display: flex; flex-direction: column; gap: 8px; }
+  .tip { display: flex; gap: 10px; align-items: flex-start; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; cursor: pointer; }
+  .tip:hover { background: var(--color-background-tertiary); }
+  .tip-num { font-size: 11px; font-weight: 500; color: white; background: #1D9E75; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .tip-body { flex: 1; }
+  .tip-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .tip-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .chip { display: inline-block; font-size: 10px; font-family: var(--font-mono); background: var(--color-background-tertiary); border: 0.5px solid var(--color-border-tertiary); border-radius: 4px; padding: 1px 5px; color: var(--color-text-secondary); }
+</style>
+
+<h2 class="sr-only">PlaceSync UI improvement suggestions comparing before and after states for login, dashboard, and job table panels</h2>
+
+<div class="section">
+  <div class="section-label">Login panel</div>
+  <div class="compare-grid">
+    <div class="panel">
+      <div class="panel-label bad">⚠ Before — flat card, no identity</div>
+      <div class="old-login">
+        <div class="old-card">
+          <div class="old-title">PlaceSync</div>
+          <div class="old-sub">Sustainability in Career Growth</div>
+          <div class="old-toggle">
+            <button class="old-toggle-btn active">Admin Login</button>
+            <button class="old-toggle-btn inactive">Student Login</button>
+          </div>
+          <div class="old-label">Username</div>
+          <input class="old-input" value="admin" readonly>
+          <div class="old-label">Password</div>
+          <input class="old-input" type="password" value="pass" readonly>
+          <button class="old-btn">Get Started</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-label good">✓ After — branded bg, logo, pill toggle, focus states</div>
+      <div class="new-login">
+        <div class="new-card">
+          <div class="new-logo-row">
+            <div class="new-logo-circle"><span>P</span></div>
+            <div>
+              <div class="new-title2">PlaceSync</div>
+            </div>
+          </div>
+          <div class="new-sub2">Career placement platform</div>
+          <div class="new-toggle2">
+            <button class="new-toggle-btn2 active">Admin</button>
+            <button class="new-toggle-btn2 inactive">Student</button>
+          </div>
+          <input class="new-input2" value="Username" readonly>
+          <input class="new-input2" type="password" value="pass" readonly>
+          <button class="new-btn2">Sign in →</button>
+          <div class="new-forgot">Forgot password?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Dashboard — sidebar + stat cards</div>
+  <div class="compare-grid">
+    <div class="panel">
+      <div class="panel-label bad">⚠ Before — icon-only sidebar, no labels, flat cards</div>
+      <div class="old-sidebar">
+        <div class="old-sb">
+          <div class="old-sb-icon active">▦</div>
+          <div class="old-sb-icon">🏢</div>
+          <div class="old-sb-icon">📋</div>
+          <div class="old-sb-icon">👥</div>
+          <div class="old-sb-icon">⚙</div>
+        </div>
+        <div class="old-content">
+          <div class="old-topbar">Placement Analytics</div>
+          <div class="old-cards">
+            <div class="old-card2">
+              <div class="old-card-label">Total Students</div>
+              <div class="old-card-val">248</div>
+              <div class="old-card-trend">+12% last month</div>
+            </div>
+            <div class="old-card2">
+              <div class="old-card-label">Placed Ratio</div>
+              <div class="old-card-val">73%</div>
+              <div class="old-card-trend">+12% last month</div>
+            </div>
+            <div class="old-card2">
+              <div class="old-card-label">Active Companies</div>
+              <div class="old-card-val">12</div>
+              <div class="old-card-trend">+12% last month</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-label good">✓ After — icon + label sidebar, colored dots, real trends, avatar</div>
+      <div class="new-sidebar">
+        <div class="new-sb">
+          <div class="new-sb-logo"><span>P</span></div>
+          <div class="new-sb-icon active">
+            <span>▦</span>
+            <span class="icon-label">Home</span>
+          </div>
+          <div class="new-sb-icon">
+            <span>🏢</span>
+            <span class="icon-label">Cos</span>
+          </div>
+          <div class="new-sb-icon">
+            <span>📋</span>
+            <span class="icon-label">Jobs</span>
+          </div>
+          <div class="new-sb-icon">
+            <span>👥</span>
+            <span class="icon-label">Apps</span>
+          </div>
+        </div>
+        <div class="new-content">
+          <div class="new-topbar">
+            <div class="new-topbar-left">Placement Analytics</div>
+            <div class="new-topbar-right">
+              <div class="new-avatar"><span>AD</span></div>
+            </div>
+          </div>
+          <div class="new-cards">
+            <div class="new-card2">
+              <div class="new-card-dot" style="background:#1D9E75"></div>
+              <div class="new-card-label2">Students</div>
+              <div class="new-card-val2">248</div>
+              <div class="new-card-trend2">↑ 8 this semester</div>
+            </div>
+            <div class="new-card2">
+              <div class="new-card-dot" style="background:#639922"></div>
+              <div class="new-card-label2">Placed ratio</div>
+              <div class="new-card-val2">73%</div>
+              <div class="new-card-trend2">↑ 5% vs last year</div>
+            </div>
+            <div class="new-card2">
+              <div class="new-card-dot" style="background:#378ADD"></div>
+              <div class="new-card-label2">Companies</div>
+              <div class="new-card-val2">12</div>
+              <div class="new-card-trend2">3 added this month</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Job discovery table</div>
+  <div class="compare-grid">
+    <div class="panel">
+      <div class="panel-label bad">⚠ Before — plain table, no status styling</div>
+      <div class="old-table-panel">
+        <div class="old-table-title">My Job Applications</div>
+        <table class="old-table">
+          <thead><tr><th>Company</th><th>Role</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>TCS</td><td>Software Engineer</td><td>Pending</td></tr>
+            <tr><td>Infosys</td><td>Data Analyst</td><td>Selected</td></tr>
+            <tr><td>Wipro</td><td>Backend Dev</td><td>Rejected</td></tr>
+            <tr><td>Cognizant</td><td>ML Engineer</td><td>Pending</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-label good">✓ After — status pills, filter bar, hover rows</div>
+      <div class="new-table-panel">
+        <div class="new-table-header">
+          <div class="new-table-title">My Applications</div>
+          <div class="new-filter-bar">
+            <div class="new-filter-pill active">All</div>
+            <div class="new-filter-pill">Pending</div>
+            <div class="new-filter-pill">Selected</div>
+          </div>
+        </div>
+        <table class="new-table2">
+          <thead><tr><th>Company</th><th>Role</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>TCS</td><td>Software Engineer</td><td><span class="status-pill status-pending">Pending</span></td></tr>
+            <tr><td>Infosys</td><td>Data Analyst</td><td><span class="status-pill status-selected">Selected</span></td></tr>
+            <tr><td>Wipro</td><td>Backend Dev</td><td><span class="status-pill status-rejected">Rejected</span></td></tr>
+            <tr><td>Cognizant</td><td>ML Engineer</td><td><span class="status-pill status-pending">Pending</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Specific improvements to make in your Java code</div>
+  <div class="tips">
+    <div class="tip" onclick="sendPrompt('Show me the improved Theme.java with Inter font, better spacing, and elevation shadows for PlaceSync')">
+      <div class="tip-num">1</div>
+      <div class="tip-body">
+        <div class="tip-title">Upgrade Theme.java — fonts, shadows, spacing tokens</div>
+        <div class="tip-desc">Add <span class="chip">FONT_INTER</span> via <span class="chip">GraphicsEnvironment</span>, add shadow rendering helpers, add a <span class="chip">SPACING</span> constant map, and a real card elevation using <span class="chip">DropShadowBorder</span> from SwingX. ↗</div>
+      </div>
+    </div>
+    <div class="tip" onclick="sendPrompt('Show me how to improve LoginPanel.java with branded background, rounded card, pill toggle, and input focus glow for PlaceSync')">
+      <div class="tip-num">2</div>
+      <div class="tip-body">
+        <div class="tip-title">LoginPanel — dark teal background + floating card</div>
+        <div class="tip-desc">Paint <span class="chip">SIDEBAR_BG</span> as the panel background. Make the card use <span class="chip">paintComponent</span> for a custom shadow. Replace the flat GridLayout toggle with a pill toggle using a shared <span class="chip">ButtonGroup</span> and <span class="chip">CardLayout</span> for the active indicator. ↗</div>
+      </div>
+    </div>
+    <div class="tip" onclick="sendPrompt('Show me how to improve Sidebar.java with icon labels, active glow, and logo treatment for PlaceSync')">
+      <div class="tip-num">3</div>
+      <div class="tip-body">
+        <div class="tip-title">Sidebar — add mini labels below icons, darken bg</div>
+        <div class="tip-desc">Change sidebar width from 60px to 72px. Each nav item gets a 2-line <span class="chip">JPanel</span> (icon on top, 9px label below). Active item gets a rounded highlight rect via <span class="chip">paintComponent</span> with <span class="chip">SIDEBAR_BG.brighter()</span>. ↗</div>
+      </div>
+    </div>
+    <div class="tip" onclick="sendPrompt('Show me how to add status badge pill renderer to the JTable in StudentDashboard.java and JobDiscoveryPanel.java for PlaceSync')">
+      <div class="tip-num">4</div>
+      <div class="tip-body">
+        <div class="tip-title">Tables — status badge cell renderer + row hover</div>
+        <div class="tip-desc">Create a <span class="chip">StatusCellRenderer extends DefaultTableCellRenderer</span> that paints a colored rounded rectangle (green/amber/red) inside the cell. Add a <span class="chip">MouseMotionListener</span> to track hovered row and repaint with a subtle background tint. ↗</div>
+      </div>
+    </div>
+    <div class="tip" onclick="sendPrompt('Show me how to replace the hardcoded +12% trend in Card.java with a real dynamic trend for PlaceSync')">
+      <div class="tip-num">5</div>
+      <div class="tip-body">
+        <div class="tip-title">Card.java — fix the hardcoded "+12% from last month" trend</div>
+        <div class="tip-desc">The trend text is currently identical on every card. Add a <span class="chip">setTrend(String text, boolean positive)</span> method. Pass the real trend string from each dashboard. Color it <span class="chip">ACCENT_EMERALD</span> (up) or red (down). ↗</div>
+      </div>
+    </div>
+    <div class="tip" onclick="sendPrompt('Show me how to add a Topbar with avatar, breadcrumb, and search field to BaseDashboardPanel.java for PlaceSync')">
+      <div class="tip-num">6</div>
+      <div class="tip-body">
+        <div class="tip-title">Topbar — add user avatar + breadcrumb context</div>
+        <div class="tip-desc">Extend <span class="chip">Topbar.java</span> to show a circular avatar with initials (painted via <span class="chip">fillOval</span>), the logged-in user's name, and the current panel name as a breadcrumb on the left. ↗</div>
+      </div>
+    </div>
+  </div>
+</div>

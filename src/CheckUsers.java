@@ -16,7 +16,7 @@ public class CheckUsers {
             }
             System.out.println("---------------------");
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error in CheckUsers: " + e.getMessage());
         }
     }
 }

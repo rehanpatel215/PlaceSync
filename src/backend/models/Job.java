@@ -1,14 +1,14 @@
 package backend.models;
 
 public class Job {
-    private int id;
-    private int companyId;
-    private String companyName; // Added
-    private String role;
-    private String description;
-    private double packageLPA;
-    private double eligibilityCGPA;
-    private String deadline;
+    private final int id;
+    private final int companyId;
+    private final String companyName;
+    private final String role;
+    private final String description;
+    private final double packageLPA;
+    private final double eligibilityCGPA;
+    private final String deadline;
 
     public Job(int id, int companyId, String companyName, String role, String description, double packageLPA, double eligibilityCGPA, String deadline) {
         this.id = id;

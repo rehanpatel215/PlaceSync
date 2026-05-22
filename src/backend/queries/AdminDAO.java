@@ -21,7 +21,7 @@ public class AdminDAO {
             rs = conn.createStatement().executeQuery("SELECT COUNT(*) FROM Students WHERE placement_status = 'Placed'");
             if (rs.next()) stats.put("placed_students", rs.getInt(1));
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error fetching dashboard stats: " + e.getMessage());
         }
         return stats;
     }
@@ -35,7 +35,7 @@ public class AdminDAO {
                 stats.put(rs.getString("status"), rs.getInt("count"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error fetching application stats: " + e.getMessage());
         }
         return stats;
     }
@@ -49,7 +49,7 @@ public class AdminDAO {
                 branchStats.put(rs.getString("branch"), rs.getInt("placed_count"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error fetching placement ratio: " + e.getMessage());
         }
         return branchStats;
     }
@@ -63,7 +63,7 @@ public class AdminDAO {
             pstmt.setString(2, location);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error adding company: " + e.getMessage());
             return false;
         }
     }
@@ -82,7 +82,7 @@ public class AdminDAO {
                 ));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error fetching all companies: " + e.getMessage());
         }
         return companies;
     }
@@ -94,7 +94,7 @@ public class AdminDAO {
             pstmt.setInt(1, id);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error deleting company: " + e.getMessage());
             return false;
         }
     }
@@ -108,7 +108,7 @@ public class AdminDAO {
             pstmt.setInt(3, id);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error updating company: " + e.getMessage());
             return false;
         }
     }
@@ -124,7 +124,7 @@ public class AdminDAO {
             pstmt.setDouble(4, cgpa);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error adding job: " + e.getMessage());
             return false;
         }
     }
@@ -144,7 +144,7 @@ public class AdminDAO {
                 jobs.add(job);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error fetching all jobs: " + e.getMessage());
         }
         return jobs;
     }
@@ -184,7 +184,7 @@ public class AdminDAO {
                 apps.add(app);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error fetching all applications: " + e.getMessage());
         }
         return apps;
     }
@@ -203,7 +203,7 @@ public class AdminDAO {
             }
             return success;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error updating application status: " + e.getMessage());
             return false;
         }
     }
@@ -226,7 +226,7 @@ public class AdminDAO {
                 new NotificationDAO().sendNotification(userId, message);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error sending application status notification: " + e.getMessage());
         }
     }
 
@@ -239,7 +239,7 @@ public class AdminDAO {
             pstmt.setString(3, time);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error scheduling interview: " + e.getMessage());
             return false;
         }
     }

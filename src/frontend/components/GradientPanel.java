@@ -5,8 +5,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GradientPanel extends JPanel {
-    private Color colorStart;
-    private Color colorEnd;
+    private final Color colorStart;
+    private final Color colorEnd;
 
     public GradientPanel(Color start, Color end) {
         this.colorStart = start;

@@ -47,11 +47,11 @@ public class MainFrame extends JFrame {
 
         add(mainPanel);
         
-        // Register Navigation Manager
-        NavigationManager.setMainFrame(this);
-        
         // Show Login by default
         showPanel("LOGIN");
+
+        // Register Navigation Manager (Deferred to avoid 'this' leakage during construction)
+        SwingUtilities.invokeLater(() -> NavigationManager.setMainFrame(this));
     }
 
     public final void showPanel(String name) {

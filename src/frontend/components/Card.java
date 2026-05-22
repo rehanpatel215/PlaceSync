@@ -5,64 +5,65 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Card extends JPanel {
-    private JLabel valueLabel; // Added
+    private final JLabel valueLabel;
+    private final JLabel trendLabel;
 
     public Card(String title, String value, Color accentColor) {
-        setPreferredSize(new Dimension(280, 140));
+        setPreferredSize(new Dimension(280, 150));
         setBackground(Color.WHITE);
         setLayout(new GridBagLayout());
-        setBorder(BorderFactory.createLineBorder(Theme.BORDER_COLOR, 1, true));
         
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 20, 5, 20);
+        gbc.insets = new Insets(12, 20, 4, 20);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
 
-        // Top Row: Title + Color Indicator
-        JPanel topRow = new JPanel(new BorderLayout());
-        topRow.setOpaque(false);
-        
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(Theme.FONT_SMALL);
-        titleLabel.setForeground(Theme.TEXT_SECONDARY);
-        topRow.add(titleLabel, BorderLayout.WEST);
-
-        // Circle Indicator
+        // 1. Color Indicator Dot
         JPanel indicator = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(accentColor);
-                g2.fillOval(0, 0, 10, 10);
+                g2.fillOval(0, 0, 8, 8);
             }
         };
-        indicator.setPreferredSize(new Dimension(10, 10));
+        indicator.setPreferredSize(new Dimension(8, 8));
         indicator.setOpaque(false);
-        topRow.add(indicator, BorderLayout.EAST);
-
         gbc.gridy = 0;
-        add(topRow, gbc);
+        add(indicator, gbc);
 
-        // Value
-        valueLabel = new JLabel(value);
-        valueLabel.setFont(new Font("Inter", Font.BOLD, 28));
-        valueLabel.setForeground(Theme.TEXT_PRIMARY);
+        // 2. Title (Uppercase, Tertiary Color)
+        JLabel titleLabel = new JLabel(title.toUpperCase());
+        titleLabel.setFont(Theme.FONT_XS);
+        titleLabel.setForeground(Theme.TEXT_TERTIARY);
         gbc.gridy = 1;
-        gbc.insets = new Insets(10, 20, 10, 20);
+        gbc.insets = new Insets(0, 20, 2, 20);
+        add(titleLabel, gbc);
+
+        // 3. Value
+        valueLabel = new JLabel(value);
+        valueLabel.setFont(new Font("Inter", Font.BOLD, 32));
+        valueLabel.setForeground(Theme.TEXT_PRIMARY);
+        gbc.gridy = 2;
+        gbc.insets = new Insets(0, 20, 2, 20);
         add(valueLabel, gbc);
         
-        // Context/Trend (Mock)
-        JLabel trend = new JLabel("+12% from last month");
-        trend.setFont(Theme.FONT_SMALL);
-        trend.setForeground(Theme.ACCENT_EMERALD);
-        gbc.gridy = 2;
+        // 4. Trend
+        trendLabel = new JLabel("");
+        trendLabel.setFont(Theme.FONT_XS);
+        gbc.gridy = 3;
         gbc.insets = new Insets(0, 20, 15, 20);
-        add(trend, gbc);
+        add(trendLabel, gbc);
     }
 
     public void setValue(String value) {
         valueLabel.setText(value);
+    }
+
+    public void setTrend(String text, boolean positive) {
+        trendLabel.setText(text);
+        trendLabel.setForeground(positive ? Theme.ACCENT_EMERALD : new Color(0xA32D2D));
     }
 
     @Override

@@ -67,11 +67,8 @@ public class JobDiscoveryPanel extends BaseDashboardPanel {
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         footer.setOpaque(false);
         
-        applyButton = new JButton("Apply Now");
-        applyButton.setBackground(Theme.PRIMARY_TEAL);
-        applyButton.setForeground(Color.WHITE);
-        applyButton.setFont(Theme.FONT_BOLD);
-        applyButton.setPreferredSize(new Dimension(150, 40));
+        applyButton = new frontend.components.RoundedButton("Apply Now");
+        applyButton.setPreferredSize(new Dimension(160, 45));
         applyButton.addActionListener(e -> handleApply());
         
         footer.add(applyButton);

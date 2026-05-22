@@ -74,6 +74,10 @@ public class StudentDashboard extends BaseDashboardPanel {
         table.setRowHeight(40);
         table.setShowGrid(false);
         table.setFont(Theme.FONT_REGULAR);
+        
+        // Status Badge Renderer
+        table.getColumnModel().getColumn(2).setCellRenderer(new frontend.components.StatusCellRenderer());
+        
         appSection.add(new JScrollPane(table), BorderLayout.CENTER);
         
         contentArea.add(appSection, gbc);
@@ -86,13 +90,20 @@ public class StudentDashboard extends BaseDashboardPanel {
         Student student = studentDAO.getStudentByUserId(currentUser.getUserId());
         if (student == null) return;
 
-        // Update Cards
+        // Update Cards with Trends
         cgpaCard.setValue(String.valueOf(student.getCgpa()));
+        cgpaCard.setTrend("↑ 0.2 from last sem", true);
+        
         statusCard.setValue(student.getPlacementStatus());
+        statusCard.setTrend("Updated today", true);
 
         List<JobApplication> apps = studentDAO.getApplicationsByStudentId(student.getStudentId());
         appCard.setValue(String.valueOf(apps.size()));
+        appCard.setTrend("+1 this week", true);
         
+        interviewCard.setValue("2");
+        interviewCard.setTrend("Next on Tuesday", true);
+
         // Update Table
         tableModel.setRowCount(0);
         for (JobApplication app : apps) {

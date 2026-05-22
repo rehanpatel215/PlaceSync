@@ -1,11 +1,11 @@
 package backend.models;
 
 public class Company {
-    private int id;
-    private String name;
-    private String industry;
-    private String website;
-    private String contactEmail;
+    private final int id;
+    private final String name;
+    private final String industry;
+    private final String website;
+    private final String contactEmail;
 
     public Company(int id, String name, String industry, String website, String contactEmail) {
         this.id = id;
