@@ -114,7 +114,7 @@ public class JobDiscoveryPanel extends BaseDashboardPanel {
         if (studentDAO.applyForJob(student.getStudentId(), jobId)) {
             JOptionPane.showMessageDialog(this, "Application submitted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            JOptionPane.showMessageDialog(this, "You have already applied for this job or an error occurred.", "Application Failed", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "You have already applied for this company.", "Application Failed", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

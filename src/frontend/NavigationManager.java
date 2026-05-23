@@ -22,14 +22,17 @@ public class NavigationManager {
     }
 
     public static void showCompanyMgmt() {
+        mainFrame.refreshAdminPanels();
         mainFrame.showPanel("COMPANY_MGMT");
     }
 
     public static void showJobMgmt() {
+        mainFrame.refreshAdminPanels();
         mainFrame.showPanel("JOB_MGMT");
     }
 
     public static void showAppMgmt() {
+        mainFrame.refreshAdminPanels();
         mainFrame.showPanel("APP_MGMT");
     }
 

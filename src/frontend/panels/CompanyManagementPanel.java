@@ -115,6 +115,10 @@ public class CompanyManagementPanel extends BaseDashboardPanel {
         refreshTable();
     }
 
+    public void refreshData() {
+        refreshTable();
+    }
+
     private void refreshTable() {
         tableModel.setRowCount(0);
         List<Company> companies = adminDAO.getAllCompanies();

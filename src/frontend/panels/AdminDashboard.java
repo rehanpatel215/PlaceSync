@@ -12,10 +12,10 @@ public class AdminDashboard extends BaseDashboardPanel {
     public AdminDashboard() {
         super("Placement Analytics", "Admin");
         adminDAO = new backend.queries.AdminDAO();
-        refreshDashboard();
+        refreshData();
     }
 
-    private void refreshDashboard() {
+    public void refreshData() {
         contentArea.removeAll();
         Map<String, Integer> stats = adminDAO.getDashboardStats();
         Map<String, Integer> appStats = adminDAO.getApplicationStatistics();

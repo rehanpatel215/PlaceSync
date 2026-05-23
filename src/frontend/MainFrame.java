@@ -16,6 +16,9 @@ public class MainFrame extends JFrame {
     private final frontend.panels.StudentProfilePanel studentProfilePanel;
     private final frontend.panels.JobDiscoveryPanel jobDiscoveryPanel;
     private final frontend.panels.SettingsPanel settingsPanel;
+    private final frontend.panels.ApplicationManagementPanel applicationManagementPanel;
+    private final frontend.panels.CompanyManagementPanel companyManagementPanel;
+    private final frontend.panels.JobManagementPanel jobManagementPanel;
 
     public MainFrame() {
         setTitle("PlaceSync - College Placement Management System");
@@ -33,14 +36,17 @@ public class MainFrame extends JFrame {
         studentProfilePanel = new frontend.panels.StudentProfilePanel();
         jobDiscoveryPanel = new frontend.panels.JobDiscoveryPanel();
         settingsPanel = new frontend.panels.SettingsPanel();
+        applicationManagementPanel = new frontend.panels.ApplicationManagementPanel();
+        companyManagementPanel = new frontend.panels.CompanyManagementPanel();
+        jobManagementPanel = new frontend.panels.JobManagementPanel();
 
         // Add Panels
         mainPanel.add(new LoginPanel(), "LOGIN");
         mainPanel.add(adminDashboard, "ADMIN_DASHBOARD");
         mainPanel.add(studentDashboard, "STUDENT_DASHBOARD");
-        mainPanel.add(new frontend.panels.CompanyManagementPanel(), "COMPANY_MGMT");
-        mainPanel.add(new frontend.panels.JobManagementPanel(), "JOB_MGMT");
-        mainPanel.add(new frontend.panels.ApplicationManagementPanel(), "APP_MGMT");
+        mainPanel.add(companyManagementPanel, "COMPANY_MGMT");
+        mainPanel.add(jobManagementPanel, "JOB_MGMT");
+        mainPanel.add(applicationManagementPanel, "APP_MGMT");
         mainPanel.add(jobDiscoveryPanel, "JOB_DISCOVERY");
         mainPanel.add(studentProfilePanel, "STUDENT_PROFILE");
         mainPanel.add(settingsPanel, "SETTINGS");
@@ -82,8 +88,24 @@ public class MainFrame extends JFrame {
 
     public void refreshAdminPanels() {
         if (adminDashboard != null) {
+            adminDashboard.refreshData();
             adminDashboard.refreshUser();
             adminDashboard.refreshSidebar();
+        }
+        if (applicationManagementPanel != null) {
+            applicationManagementPanel.refreshData();
+            applicationManagementPanel.refreshUser();
+            applicationManagementPanel.refreshSidebar();
+        }
+        if (companyManagementPanel != null) {
+            companyManagementPanel.refreshData();
+            companyManagementPanel.refreshUser();
+            companyManagementPanel.refreshSidebar();
+        }
+        if (jobManagementPanel != null) {
+            jobManagementPanel.refreshData();
+            jobManagementPanel.refreshUser();
+            jobManagementPanel.refreshSidebar();
         }
         if (settingsPanel != null) {
             settingsPanel.refreshUser();

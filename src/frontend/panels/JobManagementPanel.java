@@ -132,6 +132,11 @@ public class JobManagementPanel extends BaseDashboardPanel {
         }
     }
 
+    public void refreshData() {
+        refreshCompanies();
+        refreshTable();
+    }
+
     private void refreshTable() {
         tableModel.setRowCount(0);
         List<Map<String, Object>> jobs = adminDAO.getAllJobs();

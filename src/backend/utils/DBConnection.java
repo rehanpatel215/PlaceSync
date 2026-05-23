@@ -8,23 +8,19 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class DBConnection {
-    private static Connection connection = null;
-
     public static Connection getConnection() {
         try {
-            if (connection == null || connection.isClosed()) {
-                Properties props = new Properties();
-                props.load(new FileInputStream("res/config.properties"));
-                
-                String url = props.getProperty("db.url");
-                String user = props.getProperty("db.user");
-                String pass = props.getProperty("db.password");
-                
-                connection = DriverManager.getConnection(url, user, pass);
-            }
+            Properties props = new Properties();
+            props.load(new FileInputStream("res/config.properties"));
+            
+            String url = props.getProperty("db.url");
+            String user = props.getProperty("db.user");
+            String pass = props.getProperty("db.password");
+            
+            return DriverManager.getConnection(url, user, pass);
         } catch (IOException | SQLException e) {
             System.err.println("Database connection error: " + e.getMessage());
+            return null;
         }
-        return connection;
     }
 }

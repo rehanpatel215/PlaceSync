@@ -156,15 +156,17 @@ public class AdminDAO {
 
     public List<Map<String, Object>> getAllApplications(String filterStatus) {
         List<Map<String, Object>> apps = new ArrayList<>();
-        String sql = "SELECT a.application_id, s.name as student_name, c.name as company_name, j.role, a.status " +
+        String sql = "SELECT a.application_id, s.student_id, s.name as student_name, c.name as company_name, j.role, a.status, a.created_at, i.interview_date, i.interview_time " +
                     "FROM Applications a " +
                     "JOIN Students s ON a.student_id = s.student_id " +
                     "JOIN Jobs j ON a.job_id = j.job_id " +
-                    "JOIN Companies c ON j.company_id = c.company_id ";
+                    "JOIN Companies c ON j.company_id = c.company_id " +
+                    "LEFT JOIN Interviews i ON a.application_id = i.application_id ";
         
         if (filterStatus != null && !filterStatus.isEmpty()) {
-            sql += "WHERE a.status = ?";
+            sql += "WHERE a.status = ? ";
         }
+        sql += "ORDER BY a.created_at DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -177,10 +179,21 @@ public class AdminDAO {
             while (rs.next()) {
                 Map<String, Object> app = new HashMap<>();
                 app.put("id", rs.getInt("application_id"));
+                app.put("student_id", rs.getInt("student_id"));
                 app.put("student", rs.getString("student_name"));
                 app.put("company", rs.getString("company_name"));
                 app.put("role", rs.getString("role"));
                 app.put("status", rs.getString("status"));
+                app.put("created_at", rs.getTimestamp("created_at"));
+                
+                String date = rs.getString("interview_date");
+                String time = rs.getString("interview_time");
+                if (date != null) {
+                    app.put("interview_status", "Scheduled (" + date + " " + time + ")");
+                } else {
+                    app.put("interview_status", "Not Scheduled");
+                }
+                
                 apps.add(app);
             }
         } catch (SQLException e) {
@@ -191,53 +204,227 @@ public class AdminDAO {
 
     public boolean updateApplicationStatus(int appId, String status) {
         String sql = "UPDATE Applications SET status = ? WHERE application_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, status);
-            pstmt.setInt(2, appId);
-            
-            boolean success = pstmt.executeUpdate() > 0;
-            if (success) {
-                // Send notification to student
-                sendAppStatusNotification(appId, status);
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, status);
+                pstmt.setInt(2, appId);
+                boolean success = pstmt.executeUpdate() > 0;
+                if (success) {
+                    sendAppStatusNotification(conn, appId, status);
+                    
+                    if ("Selected".equalsIgnoreCase(status) || "Placed".equalsIgnoreCase(status)) {
+                        createPlacementFromApplication(conn, appId);
+                        updateStudentPlacementStatus(conn, appId, "Placed");
+                    }
+                }
+                conn.commit();
+                return success;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
             }
-            return success;
         } catch (SQLException e) {
             System.err.println("Error updating application status: " + e.getMessage());
             return false;
         }
     }
 
-    private void sendAppStatusNotification(int appId, String status) {
-        String query = "SELECT s.user_id, c.name as company, j.role FROM Applications a " +
-                      "JOIN Students s ON a.student_id = s.student_id " +
-                      "JOIN Jobs j ON a.job_id = j.job_id " +
-                      "JOIN Companies c ON j.company_id = c.company_id " +
-                      "WHERE a.application_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, appId);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                int userId = rs.getInt("user_id");
-                String company = rs.getString("company");
-                String role = rs.getString("role");
-                String message = "Your application for " + role + " at " + company + " has been marked as " + status + ".";
-                new NotificationDAO().sendNotification(userId, message);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error sending application status notification: " + e.getMessage());
+    private void updateStudentPlacementStatus(Connection conn, int appId, String status) throws SQLException {
+        String sql = "UPDATE Students SET placement_status = ? WHERE student_id = (SELECT student_id FROM Applications WHERE application_id = ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, status);
+            pstmt.setInt(2, appId);
+            pstmt.executeUpdate();
         }
     }
 
-    public boolean scheduleInterview(int appId, String date, String time) {
-        String sql = "INSERT INTO Interviews (application_id, interview_date, interview_time) VALUES (?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+    private void createPlacementFromApplication(Connection conn, int appId) throws SQLException {
+        String query = "SELECT a.student_id, c.name as company, j.role, j.package " +
+                       "FROM Applications a " +
+                       "JOIN Jobs j ON a.job_id = j.job_id " +
+                       "JOIN Companies c ON j.company_id = c.company_id " +
+                       "WHERE a.application_id = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, appId);
-            pstmt.setString(2, date);
-            pstmt.setString(3, time);
-            return pstmt.executeUpdate() > 0;
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    int studentId = rs.getInt("student_id");
+                    String company = rs.getString("company");
+                    String role = rs.getString("role");
+                    double pkg = rs.getDouble("package");
+                    
+                    savePlacementDetails(conn, studentId, company, role, pkg);
+                }
+            }
+        }
+    }
+
+    private void savePlacementDetails(Connection conn, int studentId, String company, String role, double pkg) throws SQLException {
+        String checkQuery = "SELECT COUNT(*) FROM Placement_Details WHERE student_id = ?";
+        boolean exists = false;
+        try (PreparedStatement checkPstmt = conn.prepareStatement(checkQuery)) {
+            checkPstmt.setInt(1, studentId);
+            try (ResultSet checkRs = checkPstmt.executeQuery()) {
+                if (checkRs.next() && checkRs.getInt(1) > 0) {
+                    exists = true;
+                }
+            }
+        }
+        
+        if (exists) {
+            String updateSql = "UPDATE Placement_Details SET company_name = ?, role = ?, package = ? WHERE student_id = ?";
+            try (PreparedStatement updatePstmt = conn.prepareStatement(updateSql)) {
+                updatePstmt.setString(1, company);
+                updatePstmt.setString(2, role);
+                updatePstmt.setDouble(3, pkg);
+                updatePstmt.setInt(4, studentId);
+                updatePstmt.executeUpdate();
+            }
+        } else {
+            String insertSql = "INSERT INTO Placement_Details (student_id, company_name, role, package) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement insertPstmt = conn.prepareStatement(insertSql)) {
+                insertPstmt.setInt(1, studentId);
+                insertPstmt.setString(2, company);
+                insertPstmt.setString(3, role);
+                insertPstmt.setDouble(4, pkg);
+                insertPstmt.executeUpdate();
+            }
+        }
+    }
+
+    public boolean assignPlacement(int studentId, String company, String role, double pkg) {
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                String studentSql = "UPDATE Students SET placement_status = 'Placed' WHERE student_id = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(studentSql)) {
+                    pstmt.setInt(1, studentId);
+                    pstmt.executeUpdate();
+                }
+                
+                savePlacementDetails(conn, studentId, company, role, pkg);
+                
+                String userSql = "SELECT user_id FROM Students WHERE student_id = ?";
+                int userId = -1;
+                try (PreparedStatement pstmt = conn.prepareStatement(userSql)) {
+                    pstmt.setInt(1, studentId);
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        if (rs.next()) {
+                            userId = rs.getInt("user_id");
+                        }
+                    }
+                }
+                if (userId != -1) {
+                    String msg = "Congratulations! You have been placed at " + company + " as " + role + ".";
+                    new NotificationDAO().sendNotification(userId, msg);
+                }
+                
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error assigning manual placement: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private void sendAppStatusNotification(Connection conn, int appId, String status) throws SQLException {
+        String query = "SELECT s.user_id, c.name as company, j.role FROM Applications a " +
+                       "JOIN Students s ON a.student_id = s.student_id " +
+                       "JOIN Jobs j ON a.job_id = j.job_id " +
+                       "JOIN Companies c ON j.company_id = c.company_id " +
+                       "WHERE a.application_id = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, appId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    int userId = rs.getInt("user_id");
+                    String company = rs.getString("company");
+                    String role = rs.getString("role");
+                    
+                    String message = "Your application for " + role + " at " + company + " has been marked as " + status + ".";
+                    if ("Shortlisted".equalsIgnoreCase(status)) {
+                        message = "You have been shortlisted for the " + role + " role at " + company + ".";
+                    } else if ("Rejected".equalsIgnoreCase(status)) {
+                        message = "Your application has been rejected.";
+                    } else if ("Selected".equalsIgnoreCase(status) || "Placed".equalsIgnoreCase(status)) {
+                        message = "Congratulations! You have been placed as " + role + " at " + company + ".";
+                    }
+                    
+                    new NotificationDAO().sendNotification(userId, message);
+                }
+            }
+        }
+    }
+
+    public boolean scheduleInterview(int appId, String date, String time, String mode, String location) {
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                String checkSql = "SELECT interview_id FROM Interviews WHERE application_id = ?";
+                int interviewId = -1;
+                try (PreparedStatement pstmt = conn.prepareStatement(checkSql)) {
+                    pstmt.setInt(1, appId);
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        if (rs.next()) {
+                            interviewId = rs.getInt("interview_id");
+                        }
+                    }
+                }
+                
+                if (interviewId != -1) {
+                    String updateSql = "UPDATE Interviews SET interview_date = ?, interview_time = ?, interview_mode = ?, interview_location = ? WHERE interview_id = ?";
+                    try (PreparedStatement pstmt = conn.prepareStatement(updateSql)) {
+                        pstmt.setString(1, date);
+                        pstmt.setString(2, time);
+                        pstmt.setString(3, mode);
+                        pstmt.setString(4, location);
+                        pstmt.setInt(5, interviewId);
+                        pstmt.executeUpdate();
+                    }
+                } else {
+                    String insertSql = "INSERT INTO Interviews (application_id, interview_date, interview_time, interview_mode, interview_location) VALUES (?, ?, ?, ?, ?)";
+                    try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+                        pstmt.setInt(1, appId);
+                        pstmt.setString(2, date);
+                        pstmt.setString(3, time);
+                        pstmt.setString(4, mode);
+                        pstmt.setString(5, location);
+                        pstmt.executeUpdate();
+                    }
+                }
+                
+                String updateAppSql = "UPDATE Applications SET status = 'Interview Scheduled' WHERE application_id = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(updateAppSql)) {
+                    pstmt.setInt(1, appId);
+                    pstmt.executeUpdate();
+                }
+                
+                String userSql = "SELECT s.user_id FROM Applications a JOIN Students s ON a.student_id = s.student_id WHERE a.application_id = ?";
+                int userId = -1;
+                try (PreparedStatement pstmt = conn.prepareStatement(userSql)) {
+                    pstmt.setInt(1, appId);
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        if (rs.next()) {
+                            userId = rs.getInt("user_id");
+                        }
+                    }
+                }
+                if (userId != -1) {
+                    String msg = "Your interview is scheduled on " + date + " at " + time + ".";
+                    new NotificationDAO().sendNotification(userId, msg);
+                }
+                
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
         } catch (SQLException e) {
             System.err.println("Error scheduling interview: " + e.getMessage());
             return false;
